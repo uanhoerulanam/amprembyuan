@@ -3,47 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magic Link Activation</title>
+    <title>Ankraixmotion Premium</title>
     <style>
-        body { background-color: #0f0f0f; color: #fff; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 400px; margin: auto; }
-        input { width: 100%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; }
-        button { width: 100%; padding: 10px; background: #4ade80; color: #000; border: none; font-weight: bold; cursor: pointer; }
-        .result { margin-top: 20px; padding: 10px; border-radius: 5px; font-size: 14px; display: none; }
-        .success { background: #064e3b; border: 1px solid #10b981; }
-        .error { background: #7f1d1d; border: 1px solid #ef4444; }
+        body { 
+            background-color: #0f0f0f; 
+            color: #fff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 20px; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 400px; 
+            width: 100%;
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+        }
+        h2 { margin-top: 0; color: #4ade80; }
+        .subtitle { color: #888; font-size: 13px; margin-bottom: 20px; }
+        label { font-size: 14px; color: #ccc; }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0 20px 0; 
+            background: #222; 
+            border: 1px solid #444; 
+            color: white; 
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4ade80;
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background: #4ade80; 
+            color: #000; 
+            border: none; 
+            font-weight: bold; 
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer; 
+            transition: 0.2s;
+        }
+        button:hover { background: #3bce6d; }
+        .result { 
+            margin-top: 20px; 
+            padding: 15px; 
+            border-radius: 5px; 
+            font-size: 14px; 
+            display: none; 
+            line-height: 1.5;
+        }
+        .success { background: #064e3b; border: 1px solid #10b981; color: #a7f3d0; }
+        .error { background: #7f1d1d; border: 1px solid #ef4444; color: #fca5a5; }
+        .footer { text-align: center; margin-top: 20px; font-size: 11px; color: #555; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>am / activate</h2>
-        <p style="color: #888; font-size: 12px;">alight motion premium - magic link activation</p>
-        <hr style="border-color: #333;">
+        <h2>Ankraixmotion / Activate</h2>
+        <div class="subtitle">Ankraixmotion Premium — Magic Link Activation</div>
         
-        <label>Masukkan Email</label>
-        <input type="email" id="email" placeholder="nama@email.com">
-        <button onclick="kirimLink()">kirim link →</button>
+        <label for="email">Masukkan Email Akun Ankraixmotion Anda</label>
+        <input type="email" id="email" placeholder="ankraixmotion@gmail.com" required>
+        <button onclick="kirimLink()" id="btnKirim">Kirim Link Aktivasi →</button>
 
         <div id="hasil" class="result"></div>
+        
+        <div class="footer">Unofficial · Reverse Engineered · Use at your own risk</div>
     </div>
 
     <script>
         async function kirimLink() {
-            const email = document.getElementById('email').value;
+            const emailInput = document.getElementById('email');
+            const email = emailInput.value;
             const hasilDiv = document.getElementById('hasil');
+            const btn = document.getElementById('btnKirim');
             
             if(!email) {
                 hasilDiv.style.display = 'block';
                 hasilDiv.className = 'result error';
-                hasilDiv.innerText = 'Masukkan email yang valid!';
+                hasilDiv.innerText = '❌ Masukkan email yang valid!';
                 return;
             }
 
-            hasilDiv.style.display = 'block';
-            hasilDiv.className = 'result';
-            hasilDiv.innerText = 'Mengirim...';
+            // Ubah tampilan tombol saat loading
+            btn.innerText = 'Mengirim...';
+            btn.disabled = true;
+            hasilDiv.style.display = 'none';
 
             try {
+                // Memanggil API backend yang ada di folder api/send.js
                 const response = await fetch('/api/send', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -51,11 +111,22 @@
                 });
                 
                 const data = await response.json();
-                hasilDiv.className = 'result success';
-                hasilDiv.innerText = 'Berhasil! Cek inbox/spam email Anda. (Pesan: ' + (data.message || 'OK') + ')';
+                
+                if (data.success || data.message) {
+                    hasilDiv.className = 'result success';
+                    hasilDiv.innerHTML = '✅ <b>Berhasil!</b><br>Link aktivasi telah dikirim ke <b>' + email + '</b>.<br><br>Silakan cek kotak masuk (Inbox) atau folder Spam email Anda.';
+                } else {
+                    hasilDiv.className = 'result error';
+                    hasilDiv.innerText = '❌ Gagal: ' + (data.message || 'Terjadi kesalahan pada server.');
+                }
             } catch (error) {
                 hasilDiv.className = 'result error';
-                hasilDiv.innerText = 'Gagal menghubungi server.';
+                hasilDiv.innerText = '❌ Gagal menghubungi server. Pastikan koneksi internet stabil.';
+            } finally {
+                // Kembalikan tombol seperti semula
+                btn.innerText = 'Kirim Link Aktivasi →';
+                btn.disabled = false;
+                hasilDiv.style.display = 'block';
             }
         }
     </script>
