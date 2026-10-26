@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Link Activation</title>
+    <style>
+        body { background-color: #0f0f0f; color: #fff; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 400px; margin: auto; }
+        input { width: 100%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; }
+        button { width: 100%; padding: 10px; background: #4ade80; color: #000; border: none; font-weight: bold; cursor: pointer; }
+        .result { margin-top: 20px; padding: 10px; border-radius: 5px; font-size: 14px; display: none; }
+        .success { background: #064e3b; border: 1px solid #10b981; }
+        .error { background: #7f1d1d; border: 1px solid #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>am / activate</h2>
+        <p style="color: #888; font-size: 12px;">alight motion premium - magic link activation</p>
+        <hr style="border-color: #333;">
+        
+        <label>Masukkan Email</label>
+        <input type="email" id="email" placeholder="nama@email.com">
+        <button onclick="kirimLink()">kirim link →</button>
+
+        <div id="hasil" class="result"></div>
+    </div>
+
+    <script>
+        async function kirimLink() {
+            const email = document.getElementById('email').value;
+            const hasilDiv = document.getElementById('hasil');
+            
+            if(!email) {
+                hasilDiv.style.display = 'block';
+                hasilDiv.className = 'result error';
+                hasilDiv.innerText = 'Masukkan email yang valid!';
+                return;
+            }
+
+            hasilDiv.style.display = 'block';
+            hasilDiv.className = 'result';
+            hasilDiv.innerText = 'Mengirim...';
+
+            try {
+                const response = await fetch('/api/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                
+                const data = await response.json();
+                hasilDiv.className = 'result success';
+                hasilDiv.innerText = 'Berhasil! Cek inbox/spam email Anda. (Pesan: ' + (data.message || 'OK') + ')';
+            } catch (error) {
+                hasilDiv.className = 'result error';
+                hasilDiv.innerText = 'Gagal menghubungi server.';
+            }
+        }
+    </script>
+</body>
+</html>
